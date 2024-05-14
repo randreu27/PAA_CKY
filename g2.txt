@@ -1,0 +1,5 @@
+S -> AB | CD | CB | SS
+A -> BC | a
+B -> SC | b
+C -> DD | b
+D -> BA

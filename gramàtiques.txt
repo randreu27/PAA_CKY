@@ -1,0 +1,13 @@
+G1
+S -> a | XA | AX | b
+A -> RB
+B -> AX | b | A
+X -> a
+R -> XB
+
+G2
+S -> AB | CD | CB | SS
+A -> BC | a
+B -> SC | b
+C -> DD | b
+D -> BA
