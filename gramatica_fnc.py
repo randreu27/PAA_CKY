@@ -40,6 +40,27 @@ class Gramatica_FNC:
                 return rule[1::]
         print('La regla no existeix!')
         raise(IndexError)
+    
+    def __init__(self, file):
+        """
+        Input: file (string) amb el nom del fitxer que conté la gramàtica
+        """
+        self.grammar = {}
+        with open(file) as f:
+            for line in f:
+                line = line.split()
+                # el primer element és el símbol no terminal i a partir del segon,
+                # cada dos (obviem el |) són els predicats
+                left, right = line[0], line[2::2]
+                self.grammar[left] = right
+        print(self.grammar)
+
+    def CKY_det(self, tira: str):
+        """
+        Input: tira de caràcters (string)
+        Output: True si la tira de caràcters pertany a la llengua de la gramàtica, False en cas contrari
+        """
+        # for s in range(len(tira)):
 
 grammar = Gramatica_FNC('g1.txt')
 print(grammar.get_rule('S'))
