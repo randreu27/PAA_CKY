@@ -17,6 +17,7 @@ class Gramatica_FNC:
         for line in lines:
             aux = line.split()
             splitted.append(aux)
+        print(splitted)
 
         # Eliminem els simbols: -, >, |, ...
         simbols = ['-', '>', '->', '|']
