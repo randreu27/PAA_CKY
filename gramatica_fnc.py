@@ -1,4 +1,11 @@
 class Gramatica_FNC:
+    """
+    Processa els textos en format igual a l'exemple "g1.txt" o "g2.txt". \n
+    Es pot accedir a les regles donada un altre regle no terminal, 
+    per més informació consulta la descripcció del mètode get_rule().
+
+    Mètode 
+    """
     def __init__(self, raw_text):
         self.raw = raw_text
         # Llegim el arxiu de text
@@ -13,11 +20,25 @@ class Gramatica_FNC:
 
         # Eliminem els simbols: -, >, |, ...
         simbols = ['-', '>', '->', '|']
-        cleaned = []
         for line in splitted:
             for word in line:
                 if word in simbols:
-                    aux = line.remove(word)
-            cleaned.append(aux)
+                    line.remove(word)
         
-        
+        # Asignem el resultat
+        self.rules = splitted
+
+    def get_rule(self, S):
+        """
+        Retorna una llista de Regles terminals i/o no terminals en forma d'string
+        Exemple: [ 'a' , 'XA' , 'AX' , 'b' ], sent les paraules majuscules no terminals,
+        i les minuscules terminals.
+        """
+        for rule in self.rules:
+            if S == rule[0]:
+                return rule[1::]
+        print('La regla no existeix!')
+        raise(IndexError)
+
+grammar = Gramatica_FNC('g1.txt')
+print(grammar.get_rule('S'))
