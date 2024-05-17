@@ -55,7 +55,33 @@ class Gramatica_FNC:
         # Σ: conjunt de terminals
         # grammar: regles de la gramàtica (llista de tuples (antecedent, precedent))
         # cadena: tira de caràcters
-        pass
+        
+        n = len(cadena)
+        if n == 0:
+            return False
+        
+        # Creem la taula per el CKY
+        table = [[set() for _ in range(n)] for _ in range(n)]
+        
+        # Omplim la taula
+        for j in range(n):
+            for nt in self.grammar:
+                for elem in self.grammar[nt]:
+                    if elem == cadena[j]:
+                        table[j][j].add(nt)
+        
+        # Apliquem l'algorisme CKY
+        for length in range(2, n+1):
+            for i in range(n-length+1):
+                j = i + length - 1
+                for k in range(i, j):
+                    for nt in self.grammar:
+                        for elem in self.grammar[nt]:
+                            if len(elem) == 2:
+                                B, C = elem[0], elem[1]
+                                if B in table[i][k] and C in table[k+1][j]:
+                                    table[i][j].add(nt)
+        return 'S' in table[0][n-1]
 
     def CKY_prob(self, cadena: str):
         """
@@ -72,4 +98,19 @@ class Gramatica_FNC:
 
 
 cnf_grammar = Gramatica_FNC('g1.txt')
-print(cnf_grammar.get_rule('R'))
+
+proves_g1 = ['a', 'aa', 'aaa', 'aaaa', 'aaaaa', 'aaaaaaa', 'b', 'bb', 'bbb', 'bbbb',
+          'bbbbb', 'ab', 'aab', 'aaab', 'aaaab', 'aaaaaab', 'abab', 'aba', 'abaa', 
+          'abaaa', 'abaab', 'bbbaaa', 'aabaaaa']
+
+labels_g1 = [True, False, False, True, False, True, True, False, False, False, False, False, 
+          False, True, False, True, False, False, True, False, False, False, True]
+
+predicted_g1 = []
+for elem in proves_g1:
+    predicted_g1.append(cnf_grammar.CKY_det(elem))
+
+if predicted_g1 == labels_g1:
+    print("La gramàtica s'ha identificat corectament!")
+else: 
+    print("La gramàtica NO s'ha identificat corectament")
