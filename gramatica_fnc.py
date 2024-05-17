@@ -99,18 +99,18 @@ class Gramatica_FNC:
 
 cnf_grammar = Gramatica_FNC('g1.txt')
 
-proves = ['a', 'aa', 'aaa', 'aaaa', 'aaaaa', 'aaaaaaa', 'b', 'bb', 'bbb', 'bbbb',
+proves_g1 = ['a', 'aa', 'aaa', 'aaaa', 'aaaaa', 'aaaaaaa', 'b', 'bb', 'bbb', 'bbbb',
           'bbbbb', 'ab', 'aab', 'aaab', 'aaaab', 'aaaaaab', 'abab', 'aba', 'abaa', 
           'abaaa', 'abaab', 'bbbaaa', 'aabaaaa']
 
-labels = [True, False, False, True, False, True, True, False, False, False, False, False, 
+labels_g1 = [True, False, False, True, False, True, True, False, False, False, False, False, 
           False, True, False, True, False, False, True, False, False, False, True]
 
-predicted = []
-for elem in proves:
-    predicted.append(cnf_grammar.CKY_det(elem))
+predicted_g1 = []
+for elem in proves_g1:
+    predicted_g1.append(cnf_grammar.CKY_det(elem))
 
-if predicted == labels:
+if predicted_g1 == labels_g1:
     print("La gramàtica s'ha identificat corectament!")
 else: 
     print("La gramàtica NO s'ha identificat corectament")
