@@ -41,8 +41,8 @@ class Gramatica_FNC:
     def get_rule(self, S):
         """
         Retorna una llista de Regles terminals i/o no terminals en forma d'string
-        Exemple: [ 'a' , 'XA' , 'AX' , 'b' ], sent les paraules majuscules no terminals,
-        i les minuscules terminals.
+        Exemple: [ 'a' , '(X, A)' , '(A, X)' , 'b' ], sent les paraules majúscules no terminals,
+        i les minúscules terminals.
         """
         return self.grammar[S]
 
