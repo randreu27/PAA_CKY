@@ -1,3 +1,5 @@
+import re
+
 class Gramatica_FNC:
     """
     Processa els textos en format igual a l'exemple "g1.txt" o "g2.txt". \n
@@ -18,21 +20,19 @@ class Gramatica_FNC:
         self.grammar = {}
         self.Σ = set()  # Símbols terminals
         self.N = set()  # Símbols no terminals
+
         with open(file) as f:
             for line in f:
-                line = line.split()
-                # el primer element és el símbol no terminal
-                # el tercer (idx 2) és la primera producció i si n'hi ha més, apareixen cada dos (idx 4, 6, ...)
-                left, right = line[0], line[2::2]
-                for i in range(len(right)):
-                    # Suposem que els símbols no terminals estan en majúscula
-                    if right[i].isupper():
-                        right[i] = tuple(right[i])
-                        self.N.add(right[i][0])
-                        self.N.add(right[i][1])
-                    else:
-                        self.Σ.add(right[i])
-                self.grammar[left] = right
+                # expressió regular filtra -> i |, strip() elimina espais
+                line = re.split(r"\s*->\s*|\s*\|\s*", line.strip())
+                self.grammar[line[0]] = line[1:]
+                for i in line:
+                    for j in i:
+                        # Si és majúscula, el símbol és no terminal. Si és minúscula, és terminal
+                        if j.isupper():
+                            self.N.add(j)
+                        else:
+                            self.Σ.add(j)
         assert 'S' in self.grammar, 'La gramàtica no té símbol inicial (ha de ser S)'
         # print('N:', self.N)
         # print('Σ:', self.Σ)
@@ -46,42 +46,66 @@ class Gramatica_FNC:
         """
         return self.grammar[S]
 
+    def get_N(self):
+        # Retorna els símbols no-terminals (en majúscula) de la gramàtica
+        return self.N
+
+    def get_Σ(self):
+        # Retorna els símbols terminals (en minúscula) de la gramàtica
+        return self.Σ
+
     def CKY_det(self, cadena: str):
         """
         Input: tira de caràcters (string)
         Output: True si la tira de caràcters pertany a la llengua de la gramàtica, False en cas contrari
         """
-        # N: conjunt de no terminals
-        # Σ: conjunt de terminals
-        # grammar: regles de la gramàtica (llista de tuples (antecedent, precedent))
-        # cadena: tira de caràcters
-        
         n = len(cadena)
         if n == 0:
-            return False
-        
-        # Creem la taula per el CKY
-        table = [[set() for _ in range(n)] for _ in range(n)]
-        
-        # Omplim la taula
-        for j in range(n):
+            # la paraula buida només es pot generar en un CFG en FNC si es genera per l'element d'entrada (S)
+            return 'S' in self.grammar and '' in self.grammar['S']
+
+        # Creem la taula triangular superior per el CKY
+        table = [[set() for _ in range(n - i)] for i in range(n)]
+
+        # Omplim la taula (diagonal)
+        for i in range(n):
             for nt in self.grammar:
                 for elem in self.grammar[nt]:
-                    if elem == cadena[j]:
-                        table[j][j].add(nt)
-        
+                    if elem == cadena[i]:
+                        table[i][0].add(nt)
+
         # Apliquem l'algorisme CKY
-        for length in range(2, n+1):
-            for i in range(n-length+1):
-                j = i + length - 1
-                for k in range(i, j):
+        for length in range(2, n + 1):
+            for i in range(n - length + 1):
+                for k in range(1, length):
+                    j = length - 1  # La longitud del segment actual
                     for nt in self.grammar:
                         for elem in self.grammar[nt]:
                             if len(elem) == 2:
-                                B, C = elem[0], elem[1]
-                                if B in table[i][k] and C in table[k+1][j]:
+                                B, C = elem
+                                if B in table[i][k - 1] and C in table[i + k][j - k]:
                                     table[i][j].add(nt)
-        return 'S' in table[0][n-1]
+        print(cadena)
+        self.print_table(table)
+        return 'S' in table[0][n - 1]
+
+    def print_table(self, table):
+        """
+        Imprimeix la taula CKY en format ASCII ben formatejada.
+        """
+        n = len(table)
+        # Per a cada nou element, afegim 3 espais ("X, " ocupa 3 caràcters)
+        mida_tab = max(len(elem) for subllista in table for elem in subllista) * 3
+
+        for i in range(n):
+            for j in range(i + 1):
+                cel·la = str(table[j][i - j]) if table[j][i - j] else ""
+                cel·la = re.sub(r"[{}']", '', cel·la)
+                cel·la = f"[{cel·la.center(mida_tab)}]"
+                print(cel·la, end=" " * (mida_tab - len(cel·la)))
+            print(" " * mida_tab, end="")
+            print()
+        print()
 
     def CKY_prob(self, cadena: str):
         """
@@ -94,17 +118,16 @@ class Gramatica_FNC:
         """
         Transforma la gramàtica de CFG a CNF
         """
-        pass
 
 
-cnf_grammar = Gramatica_FNC('g1.txt')
+cnf_grammar = Gramatica_FNC('g2.txt')
 
 proves_g1 = ['a', 'aa', 'aaa', 'aaaa', 'aaaaa', 'aaaaaaa', 'b', 'bb', 'bbb', 'bbbb',
-          'bbbbb', 'ab', 'aab', 'aaab', 'aaaab', 'aaaaaab', 'abab', 'aba', 'abaa', 
-          'abaaa', 'abaab', 'bbbaaa', 'aabaaaa']
+             'bbbbb', 'ab', 'aab', 'aaab', 'aaaab', 'aaaaaab', 'abab', 'aba', 'abaa',
+             'abaaa', 'abaab', 'bbbaaa', 'aabaaaa']
 
-labels_g1 = [True, False, False, True, False, True, True, False, False, False, False, False, 
-          False, True, False, True, False, False, True, False, False, False, True]
+labels_g1 = [True, False, False, True, False, True, True, False, False, False, False, False,
+             False, True, False, True, False, False, True, False, False, False, True]
 
 predicted_g1 = []
 for elem in proves_g1:
