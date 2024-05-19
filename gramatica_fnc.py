@@ -102,9 +102,8 @@ class Gramatica_FNC:
                 cel·la = str(table[j][i - j]) if table[j][i - j] else ""
                 cel·la = re.sub(r"[{}']", '', cel·la)
                 cel·la = f"[{cel·la.center(mida_tab)}]"
-                print(cel·la, end=" " * (mida_tab - len(cel·la)))
-            print(" " * mida_tab, end="")
-            print()
+                print(cel·la, end="")
+            print(" " * mida_tab)
         print()
 
     def CKY_prob(self, cadena: str):
