@@ -17,15 +17,18 @@ class Gramatica_FNC:
         """
         Input: file (string) amb el nom del fitxer que conté la gramàtica.
         """
-        self.grammar = {}
-        self.Σ = set()  # Símbols terminals
-        self.N = set()  # Símbols no terminals
+        self.grammar = {}  # Gramàtica (diccionari de llistes)
+        self.Σ = set()     # Símbols terminals
+        self.N = set()     # Símbols no terminals
+        self.inv_Σ = {}
+        self.inv_N = {}
 
         with open(file) as f:
             for line in f:
                 # expressió regular filtra -> i |, strip() elimina espais
                 line = re.split(r"\s*->\s*|\s*\|\s*", line.strip())
                 self.grammar[line[0]] = line[1:]
+                self.inv_Σ
                 for i in line:
                     for j in i:
                         # Si és majúscula, el símbol és no terminal. Si és minúscula, és terminal
@@ -36,15 +39,32 @@ class Gramatica_FNC:
         assert 'S' in self.grammar, 'La gramàtica no té símbol inicial (ha de ser S)'
         # print('N:', self.N)
         # print('Σ:', self.Σ)
-        # print('Grammar:', self.grammar)
+        print('Grammar:', self.grammar)
 
-    def get_rule(self, S):
+        for esq, dre in self.grammar.items():
+            terminals = [t for t in dre if len(t) == 1]
+            no_terminals = [nt for nt in dre if len(nt) == 2]
+            for t in terminals:
+                if t not in self.inv_Σ:
+                    self.inv_Σ[t] = [esq]
+                else:
+                    self.inv_Σ[t].append(esq)
+            for nt in no_terminals:
+                if esq not in self.inv_N:
+                    self.inv_N[esq] = [nt]
+                else:
+                    self.inv_N[esq].append(nt)
+
+        print('inv_Σ:', self.inv_Σ)
+        print('inv_N', self.inv_N)
+
+    def get_produccions(self, S):
         """
         Retorna una llista de Regles terminals i/o no terminals en forma d'string.
         Exemple: [ 'a' , '(X, A)' , '(A, X)' , 'b' ], sent les paraules majúscules no terminals,
         i les minúscules terminals.
         """
-        return self.grammar[S]
+        return [nt for nt in self.grammar[S] if nt.isupper()]
 
     def get_N(self):
         """
@@ -63,52 +83,51 @@ class Gramatica_FNC:
         Input: tira de caràcters (string).
         Output: True si la tira de caràcters pertany a la llengua de la gramàtica, False en cas contrari.
         """
+        print(cadena)
         n = len(cadena)
         if n == 0:
             # la paraula buida només es pot generar en un CFG en FNC si es genera per l'element d'entrada (S)
             return 'S' in self.grammar and '' in self.grammar['S']
 
         # Creem la taula triangular superior per el CKY
-        table = [[set() for _ in range(n - i)] for i in range(n)]
+        table = [[set() for _ in range(i + 1)] for i in range(n)]
 
-        # Omplim la taula (diagonal)
+        # Omplim el cas base (línia de sota)
         for i in range(n):
-            for nt in self.grammar:
-                for elem in self.grammar[nt]:
-                    if elem == cadena[i]:
-                        table[i][0].add(nt)
+            print(self.inv_Σ, cadena, i, cadena[i])
+            for t in self.inv_Σ[cadena[i]]:
+                table[-1][i].add(t)
 
         # Apliquem l'algorisme CKY
+        m = 0
         for length in range(2, n + 1):
             for i in range(n - length + 1):
                 for k in range(1, length):
-                    j = length - 1  # La longitud del segment actual
                     for nt in self.grammar:
-                        for elem in self.grammar[nt]:
-                            if len(elem) == 2:
-                                B, C = elem
-                                if B in table[i][k - 1] and C in table[i + k][j - k]:
-                                    table[i][j].add(nt)
-        print(cadena)
+                        for elem in self.get_produccions(nt):
+                            m += 1
+                            if elem[0] in table[-k][i] and elem[1] in table[-(length - k)][i + k]:
+                                table[-length][i].add(nt)
+                                break
+        print("M:", m)
         self.print_table(table)
-        return 'S' in table[0][n - 1]
+
+        print('S' in table[-n][0])
+        return 'S' in table[-n][0]
 
     def print_table(self, table):
         """
         Imprimeix la taula CKY en format ASCII ben formatejada.
         """
-        n = len(table)
-        # Per a cada nou element, afegim 3 espais ("X, " ocupa 3 caràcters)
-        mida_tab = max(len(elem) for subllista in table for elem in subllista) * 3
+        # Per a cada nou element, afegim 3 espais ("X, " ocupa 3 caràcters) i en restem dos per les []
+        mida_tab = max(len(elem) for subllista in table for elem in subllista) * 3 - 2
 
-        for i in range(n):
-            for j in range(i + 1):
-                cel·la = str(table[j][i - j]) if table[j][i - j] else ""
-                cel·la = re.sub(r"[{}']", '', cel·la)
-                cel·la = f"[{cel·la.center(mida_tab)}]"
-                print(cel·la, end="")
-            print(" " * mida_tab)
-        print()
+        for cel·la in table:
+            for elem in cel·la:
+                elem = str(elem) if elem != set() else ""
+                elem = re.sub(r"[{}']", '', elem)
+                print(f"[{elem.center(mida_tab)}]", end="")
+            print()
 
     def CKY_prob(self, cadena: str):
         """
