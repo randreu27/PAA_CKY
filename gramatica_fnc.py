@@ -15,7 +15,7 @@ class Gramatica_FNC:
     """
     def __init__(self, file):
         """
-        Input: file (string) amb el nom del fitxer que conté la gramàtica
+        Input: file (string) amb el nom del fitxer que conté la gramàtica.
         """
         self.grammar = {}
         self.Σ = set()  # Símbols terminals
@@ -40,24 +40,28 @@ class Gramatica_FNC:
 
     def get_rule(self, S):
         """
-        Retorna una llista de Regles terminals i/o no terminals en forma d'string
+        Retorna una llista de Regles terminals i/o no terminals en forma d'string.
         Exemple: [ 'a' , '(X, A)' , '(A, X)' , 'b' ], sent les paraules majúscules no terminals,
         i les minúscules terminals.
         """
         return self.grammar[S]
 
     def get_N(self):
-        # Retorna els símbols no-terminals (en majúscula) de la gramàtica
+        """
+        Retorna els símbols no-terminals (en majúscula) de la gramàtica.
+        """
         return self.N
 
     def get_Σ(self):
-        # Retorna els símbols terminals (en minúscula) de la gramàtica
+        """
+        Retorna els símbols terminals (en minúscula) de la gramàtica.
+        """
         return self.Σ
 
     def CKY_det(self, cadena: str):
         """
-        Input: tira de caràcters (string)
-        Output: True si la tira de caràcters pertany a la llengua de la gramàtica, False en cas contrari
+        Input: tira de caràcters (string).
+        Output: True si la tira de caràcters pertany a la llengua de la gramàtica, False en cas contrari.
         """
         n = len(cadena)
         if n == 0:
@@ -108,18 +112,18 @@ class Gramatica_FNC:
 
     def CKY_prob(self, cadena: str):
         """
-        Input: tira de caràcters (string)
-        Output: probabilitat que la tira de caràcters pertanyi a la llengua de la gramàtica
+        Input: tira de caràcters (string).
+        Output: probabilitat que la tira de caràcters pertanyi a la llengua de la gramàtica.
         """
         pass
 
     def CFG_a_CNF(self):
         """
-        Transforma la gramàtica de CFG a CNF
+        Transforma la gramàtica de CFG a CNF.
         """
 
 
-cnf_grammar = Gramatica_FNC('g2.txt')
+cnf_grammar = Gramatica_FNC('g1.txt')
 
 proves_g1 = ['a', 'aa', 'aaa', 'aaaa', 'aaaaa', 'aaaaaaa', 'b', 'bb', 'bbb', 'bbbb',
              'bbbbb', 'ab', 'aab', 'aaab', 'aaaab', 'aaaaaab', 'abab', 'aba', 'abaa',
