@@ -71,11 +71,11 @@ class Gramatica_FNC:
             return 'S' in self.grammar and '' in self.grammar['S']
 
         # Creem la taula triangular superior per el CKY
-        table = [[set() for _ in range(i + 1)] for i in range(n)]
+        taula = [[set() for _ in range(i + 1)] for i in range(n)]
 
         # Omplim el cas base (línia de sota)
         for i in range(n):
-            table[-1][i].update(self.Σ[cadena[i]])
+            taula[-1][i].update(self.Σ[cadena[i]])
 
         # Apliquem l'algorisme CKY
         for length in range(2, n + 1):
@@ -83,21 +83,21 @@ class Gramatica_FNC:
                 for k in range(1, length):
                     for nt in self.N:
                         B, C = nt
-                        if B in table[-k][i] and C in table[-(length - k)][i + k]:
-                            table[-length][i].update(self.N[nt])
+                        if B in taula[-k][i] and C in taula[-(length - k)][i + k]:
+                            taula[-length][i].update(self.N[nt])
 
-        self.print_table(table)
-        return 'S' in table[-n][0]
+        self.print_taula(taula)
+        return 'S' in taula[-n][0]
 
-    def print_table(self, table):
+    def print_taula(self, taula):
         """
         Imprimeix la taula CKY en format ASCII ben formatejada.
         """
         # Per a cada nou element, afegim 3 espais ("X, " ocupa 3 caràcters) i en restem dos per les []
-        mida_tab = max(len(elem) for subllista in table for elem in subllista) * 3 - 2
+        mida_tab = max(len(elem) for subllista in taula for elem in subllista) * 3 - 2
 
-        for cel·la in table:
-            print(" " * (len(table) - len(cel·la)) * (mida_tab + 2), end="")
+        for cel·la in taula:
+            print(" " * (len(taula) - len(cel·la)) * (mida_tab + 2), end="")
             for elem in cel·la:
                 elem = str(elem) if elem != set() else ""
                 elem = re.sub(r"[{}']", '', elem)
@@ -116,7 +116,10 @@ class Gramatica_FNC:
         """
         Transforma la gramàtica de CFG a CNF.
         """
-        # Pas 1: Afegir un nou estat inicial
+        # Pas 1: Eliminar regles unitàries
+        # Pas 2: Eliminar no terminals amb 3 o més símbols
+        # Pas 3: Eliminar regles ε
+        # Pas 4: Eliminar regles amb barreja de terminals i no-terminals
 
 
 cnf_grammar = Gramatica_FNC('g1.txt')
