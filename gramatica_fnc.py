@@ -1,5 +1,6 @@
 import re
 
+
 class Gramatica_FNC:
     """
     Processa els textos en format igual a l'exemple "g1.txt" o "g2.txt". \n
@@ -17,66 +18,45 @@ class Gramatica_FNC:
         """
         Input: file (string) amb el nom del fitxer que conté la gramàtica.
         """
-        self.grammar = {}  # Gramàtica (diccionari de llistes)
-        self.Σ = set()     # Símbols terminals
-        self.N = set()     # Símbols no terminals
-        self.inv_Σ = {}
-        self.inv_N = {}
+        self.grammar = {}   # Gramàtica (diccionari de llistes)
+        self.N = {}         # No terminals (claus: 1 símbol no terminal, vals: llistes de parelles de no-terminals)
+        self.Σ = {}         # Terminals (claus: 1 símbol terminal, vals: llistes de 1 símbol no terminal)
 
         with open(file) as f:
             for line in f:
                 # expressió regular filtra -> i |, strip() elimina espais
                 line = re.split(r"\s*->\s*|\s*\|\s*", line.strip())
                 self.grammar[line[0]] = line[1:]
-                self.inv_Σ
-                for i in line:
-                    for j in i:
-                        # Si és majúscula, el símbol és no terminal. Si és minúscula, és terminal
-                        if j.isupper():
-                            self.N.add(j)
-                        else:
-                            self.Σ.add(j)
+
         assert 'S' in self.grammar, 'La gramàtica no té símbol inicial (ha de ser S)'
-        # print('N:', self.N)
-        # print('Σ:', self.Σ)
-        print('Grammar:', self.grammar)
 
         for esq, dre in self.grammar.items():
             terminals = [t for t in dre if len(t) == 1]
             no_terminals = [nt for nt in dre if len(nt) == 2]
             for t in terminals:
-                if t not in self.inv_Σ:
-                    self.inv_Σ[t] = [esq]
+                if t not in self.Σ:
+                    self.Σ[t] = [esq]
                 else:
-                    self.inv_Σ[t].append(esq)
+                    self.Σ[t].append(esq)
             for nt in no_terminals:
-                if esq not in self.inv_N:
-                    self.inv_N[esq] = [nt]
+                if esq not in self.N:
+                    self.N[esq] = [nt]
                 else:
-                    self.inv_N[esq].append(nt)
+                    self.N[esq].append(nt)
 
-        print('inv_Σ:', self.inv_Σ)
-        print('inv_N', self.inv_N)
+        # print('Grammar:', self.grammar)
+        # print('N:', self.N)
+        # print('Σ:', self.Σ)
 
-    def get_produccions(self, S):
+    def get(self, S):
         """
-        Retorna una llista de Regles terminals i/o no terminals en forma d'string.
-        Exemple: [ 'a' , '(X, A)' , '(A, X)' , 'b' ], sent les paraules majúscules no terminals,
-        i les minúscules terminals.
+        S és un signe no terminal
+        Retorna els símbols terminals produïts per S.
+        Exemple:
+        Input: S
+        Output: ['a', 'XA', 'AX', 'b']
         """
-        return [nt for nt in self.grammar[S] if nt.isupper()]
-
-    def get_N(self):
-        """
-        Retorna els símbols no-terminals (en majúscula) de la gramàtica.
-        """
-        return self.N
-
-    def get_Σ(self):
-        """
-        Retorna els símbols terminals (en minúscula) de la gramàtica.
-        """
-        return self.Σ
+        return self.grammar[S]
 
     def CKY_det(self, cadena: str):
         """
@@ -94,25 +74,19 @@ class Gramatica_FNC:
 
         # Omplim el cas base (línia de sota)
         for i in range(n):
-            print(self.inv_Σ, cadena, i, cadena[i])
-            for t in self.inv_Σ[cadena[i]]:
-                table[-1][i].add(t)
+            for nt in self.Σ[cadena[i]]:
+                table[-1][i].add(nt)
 
         # Apliquem l'algorisme CKY
-        m = 0
         for length in range(2, n + 1):
             for i in range(n - length + 1):
                 for k in range(1, length):
-                    for nt in self.grammar:
-                        for elem in self.get_produccions(nt):
-                            m += 1
+                    for nt in self.N:
+                        for elem in self.N[nt]:
                             if elem[0] in table[-k][i] and elem[1] in table[-(length - k)][i + k]:
                                 table[-length][i].add(nt)
-                                break
-        print("M:", m)
-        self.print_table(table)
 
-        print('S' in table[-n][0])
+        self.print_table(table)
         return 'S' in table[-n][0]
 
     def print_table(self, table):
@@ -157,5 +131,5 @@ for elem in proves_g1:
 
 if predicted_g1 == labels_g1:
     print("La gramàtica s'ha identificat corectament!")
-else: 
+else:
     print("La gramàtica NO s'ha identificat corectament")
