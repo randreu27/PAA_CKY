@@ -19,7 +19,7 @@ class Gramatica_FNC:
         Input: file (string) amb el nom del fitxer que conté la gramàtica.
         """
         self.grammar = {}   # Gramàtica (diccionari de llistes)
-        self.N = {}         # No terminals (claus: 1 símbol no terminal, vals: llistes de parelles de no-terminals)
+        self.N = {}         # No terminals (claus: 2 símbols no terminals, vals: regles que les referencien)
         self.Σ = {}         # Terminals (claus: 1 símbol terminal, vals: llistes de 1 símbol no terminal)
 
         with open(file) as f:
@@ -29,6 +29,7 @@ class Gramatica_FNC:
                 self.grammar[line[0]] = line[1:]
 
         assert 'S' in self.grammar, 'La gramàtica no té símbol inicial (ha de ser S)'
+        self.CFG_a_CNF()
 
         for esq, dre in self.grammar.items():
             terminals = [t for t in dre if len(t) == 1]
@@ -39,10 +40,10 @@ class Gramatica_FNC:
                 else:
                     self.Σ[t].append(esq)
             for nt in no_terminals:
-                if esq not in self.N:
-                    self.N[esq] = [nt]
+                if nt not in self.N:
+                    self.N[nt] = [esq]
                 else:
-                    self.N[esq].append(nt)
+                    self.N[nt].append(esq)
 
         # print('Grammar:', self.grammar)
         # print('N:', self.N)
@@ -74,17 +75,15 @@ class Gramatica_FNC:
 
         # Omplim el cas base (línia de sota)
         for i in range(n):
-            for nt in self.Σ[cadena[i]]:
-                table[-1][i].add(nt)
+            table[-1][i].update(self.Σ[cadena[i]])
 
         # Apliquem l'algorisme CKY
         for length in range(2, n + 1):
             for i in range(n - length + 1):
                 for k in range(1, length):
                     for nt in self.N:
-                        for elem in self.N[nt]:
-                            if elem[0] in table[-k][i] and elem[1] in table[-(length - k)][i + k]:
-                                table[-length][i].add(nt)
+                        if nt[0] in table[-k][i] and nt[1] in table[-(length - k)][i + k]:
+                            table[-length][i].update(self.N[nt])
 
         self.print_table(table)
         return 'S' in table[-n][0]
@@ -102,6 +101,7 @@ class Gramatica_FNC:
                 elem = re.sub(r"[{}']", '', elem)
                 print(f"[{elem.center(mida_tab)}]", end="")
             print()
+        print()
 
     def CKY_prob(self, cadena: str):
         """
@@ -114,6 +114,7 @@ class Gramatica_FNC:
         """
         Transforma la gramàtica de CFG a CNF.
         """
+
 
 
 cnf_grammar = Gramatica_FNC('g1.txt')
