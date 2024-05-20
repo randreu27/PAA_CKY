@@ -82,7 +82,8 @@ class Gramatica_FNC:
             for i in range(n - length + 1):
                 for k in range(1, length):
                     for nt in self.N:
-                        if nt[0] in table[-k][i] and nt[1] in table[-(length - k)][i + k]:
+                        B, C = nt
+                        if B in table[-k][i] and C in table[-(length - k)][i + k]:
                             table[-length][i].update(self.N[nt])
 
         self.print_table(table)
@@ -96,6 +97,7 @@ class Gramatica_FNC:
         mida_tab = max(len(elem) for subllista in table for elem in subllista) * 3 - 2
 
         for cel·la in table:
+            print(" " * (len(table) - len(cel·la)) * (mida_tab + 2), end="")
             for elem in cel·la:
                 elem = str(elem) if elem != set() else ""
                 elem = re.sub(r"[{}']", '', elem)
@@ -114,7 +116,7 @@ class Gramatica_FNC:
         """
         Transforma la gramàtica de CFG a CNF.
         """
-
+        # Pas 1: Afegir un nou estat inicial
 
 
 cnf_grammar = Gramatica_FNC('g1.txt')
