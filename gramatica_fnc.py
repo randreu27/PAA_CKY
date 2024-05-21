@@ -121,6 +121,24 @@ class Gramatica_FNC:
         # Pas 3: Eliminar regles ε
         # Pas 4: Eliminar regles amb barreja de terminals i no-terminals
 
+        for regla in self.grammar:
+            for elem in self.get(regla):
+                nova_regla = elem
+                # Eliminar regles ε
+                if elem == 'ε':
+                    self.grammar.update()
+                    break
+                
+                # Eliminar regles amb barreja de terminals i no-terminals
+                if any(map(str.isupper, nova_regla)) and any(map(str.islower, nova_regla)):
+                    for literal in nova_regla:
+                        if literal.islower():
+                            pass
+                        if literal.isupper():
+                            pass
+                # Eliminar regles unitàries
+                # Eliminar no terminals amb 3 o més símbols
+                
 
 cnf_grammar = Gramatica_FNC('g1.txt')
 
