@@ -122,6 +122,7 @@ class Gramatica_FNC:
         # Pas 4: Eliminar regles amb barreja de terminals i no-terminals
 
         for regla in self.grammar:
+            nou_conjunt_regles = self.get(regla)
             for elem in self.get(regla):
                 nova_regla = elem
                 # Eliminar regles ε
