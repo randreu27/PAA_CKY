@@ -1,0 +1,4 @@
+S -> aaSb|A
+A -> aAb
+P -> N | bA
+N -> d

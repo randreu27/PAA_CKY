@@ -1,11 +1,10 @@
 import re
+import copy
 
 
 class Gramatica_FNC:
     """
-    Processa els textos en format igual a l'exemple "g1.txt" o "g2.txt". \n
-    Es pot accedir a les regles donada una altra regla no terminal,
-    per més informació consulta la descripcció del mètode get_rule().
+    Processa els textos en format igual a l'exemple "g1.txt" o "g2.txt".
 
     Regles de format:
         Terminals en minúscules.
@@ -45,9 +44,9 @@ class Gramatica_FNC:
                 else:
                     self.N[nt].append(esq)
 
-        # print('Grammar:', self.grammar)
-        # print('N:', self.N)
-        # print('Σ:', self.Σ)
+        print('Grammar:', self.grammar)
+        print('N:', self.N)
+        print('Σ:', self.Σ)
 
     def get(self, S):
         """
@@ -64,10 +63,9 @@ class Gramatica_FNC:
         Input: tira de caràcters (string).
         Output: True si la tira de caràcters pertany a la llengua de la gramàtica, False en cas contrari.
         """
-        print(cadena)
         n = len(cadena)
         if n == 0:
-            # la paraula buida només es pot generar en un CFG en FNC si es genera per l'element d'entrada (S)
+            # la paraula buida només es pot generar en un CFG en FNC si es genera per l'element d'entrada (Z)
             return 'S' in self.grammar and '' in self.grammar['S']
 
         # Creem la taula triangular superior per el CKY
@@ -86,7 +84,8 @@ class Gramatica_FNC:
                         if B in taula[-k][i] and C in taula[-(length - k)][i + k]:
                             taula[-length][i].update(self.N[nt])
 
-        self.print_taula(taula)
+        # print(cadena)
+        # self.print_taula(taula)
         return 'S' in taula[-n][0]
 
     def print_taula(self, taula):
@@ -116,32 +115,50 @@ class Gramatica_FNC:
         """
         Transforma la gramàtica de CFG a CNF.
         """
-        # Pas 1: Eliminar regles unitàries
-        # Pas 2: Eliminar no terminals amb 3 o més símbols
-        # Pas 3: Eliminar regles ε
-        # Pas 4: Eliminar regles amb barreja de terminals i no-terminals
-
+        símbols_usats = set()
         for regla in self.grammar:
-            nou_conjunt_regles = self.get(regla)
-            for elem in self.get(regla):
-                nova_regla = elem
-                # Eliminar regles ε
-                if elem == 'ε':
-                    self.grammar.update()
-                    break
-                
-                # Eliminar regles amb barreja de terminals i no-terminals
-                if any(map(str.isupper, nova_regla)) and any(map(str.islower, nova_regla)):
-                    for literal in nova_regla:
-                        if literal.islower():
-                            pass
-                        if literal.isupper():
-                            pass
-                # Eliminar regles unitàries
-                # Eliminar no terminals amb 3 o més símbols
-                
+            for elem in self.grammar[regla]:
+                símbols_usats.add(regla)
+                for literal in elem:
+                    símbols_usats.add(literal)
 
-cnf_grammar = Gramatica_FNC('g1.txt')
+        nt_disponibles = [x for x in 'ΩΨΦΣΠΞΛΘΔΓZYXWVUTSRQPONMLKJIHGFEDCBA' if x not in símbols_usats]
+        t_disponibles  = [x for x in 'ωψφχτπξμλκθηζδβzyxwvutsrqponmlkjihgfedcba' if x not in símbols_usats]
+
+        substitucions = {}  # Clau: símbols antics, Valor: símbols nous
+
+        # Pas 1: Regles híbrides
+        for regla in list(self.grammar):
+            for idx in range(len(self.grammar[regla])):
+                # Si la regla té més de 2 símbols i algun és terminal
+                if len(self.grammar[regla][idx]) >= 2 and any(map(str.islower, self.grammar[regla][idx])):
+                    for símbol in self.grammar[regla][idx]:
+                        if símbol.islower():
+                            if símbol not in substitucions:
+                                # Guardem la substitució per a futur ús en altres regles (consistència)
+                                substitucions[símbol] = nt_disponibles.pop()
+                            self.grammar[regla][idx] = self.grammar[regla][idx].replace(símbol, substitucions[símbol])
+                            self.grammar[substitucions[símbol]] = [símbol]
+
+        # Pas 2: Regles unitàries
+        for regla in list(self.grammar):
+            if regla not in self.grammar:
+                continue
+            for idx in range(len(self.grammar[regla])):
+                if len(self.grammar[regla][idx]) == 1 and self.grammar[regla][idx].isupper():
+                    if len(self.grammar[self.grammar[regla][idx][0]]) == 1 and self.grammar[self.grammar[regla][idx]][0].islower():
+                        clau_tmp = self.grammar[regla][idx]
+                        self.grammar[regla] = [self.grammar[self.grammar[regla][idx][0]][0]]
+                        # Eliminar regla unitària (clau regla)
+                        print(self.grammar, self.grammar[regla][0], regla, idx)
+                        del self.grammar[clau_tmp]
+                        print(self.grammar)
+                        break
+
+        # Pas 3: Regles de més de 2 símbols no terminals
+
+
+cnf_grammar = Gramatica_FNC('g5.txt')
 
 proves_g1 = ['a', 'aa', 'aaa', 'aaaa', 'aaaaa', 'aaaaaaa', 'b', 'bb', 'bbb', 'bbbb',
              'bbbbb', 'ab', 'aab', 'aaab', 'aaaab', 'aaaaaab', 'abab', 'aba', 'abaa',
