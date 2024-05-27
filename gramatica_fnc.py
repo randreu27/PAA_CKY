@@ -134,7 +134,7 @@ class Gramatica_FNC:
         t_disponibles  = [x for x in 'ωψφχτπξμλκθηζδβzyxwvutsrqponmlkjihgfedcba' if x not in símbols_usats]
 
         substitucions = {}  # Clau: símbols antics, Valor: símbols nous
-        self.print_grammar()
+
         # Pas 1: Regles híbrides
         for regla in list(self.grammar):
             for idx in range(len(self.grammar[regla])):
@@ -147,8 +147,6 @@ class Gramatica_FNC:
                                 substitucions[símbol] = nt_disponibles.pop()
                             self.grammar[regla][idx] = self.grammar[regla][idx].replace(símbol, substitucions[símbol])
                             self.grammar[substitucions[símbol]] = [símbol]
-
-        self.print_grammar()
 
         # Pas 2: Regles unitàries
         for regla in list(self.grammar):
@@ -163,21 +161,13 @@ class Gramatica_FNC:
                         del self.grammar[clau_tmp]
                         break
 
-        self.print_grammar()
-
         # Pas 3: Regles de més de 2 símbols no terminals
         for regla in list(self.grammar):
             for idx in range(len(self.grammar[regla])):
                 for j in range(len(self.grammar[regla][idx]) - 2):
                     self.grammar[nt_disponibles.pop()] = [self.grammar[regla][idx][j:j + 2]]
                     self.grammar[regla][idx] = self.grammar[regla][idx].replace(self.grammar[regla][idx][j:j + 2], nt_disponibles[-1])
-                    """if self.grammar[regla][idx][j:j + 2] not in substitucions:
-                        substitucions[self.grammar[regla][idx][j:j + 2]] = nt_disponibles.pop()
-                        print("Substitució:", self.grammar[regla][idx][j:j+2], substitucions[self.grammar[regla][idx][j:j + 2]])
-                    else:
-                        print("hola, que hi ha algú?", self.grammar[regla][idx][j:j + 2], substitucions[self.grammar[regla][idx][j:j + 2]])
-                    self.grammar[substitucions[self.grammar[regla][idx][j:j + 2]]] = [self.grammar[regla][idx][j:j+2]]
-                    self.grammar[regla][idx] = self.grammar[regla][idx].replace(self.grammar[regla][idx][j:j + 2], substitucions[self.grammar[regla][idx][j:j + 2]])"""
+
 
 cnf_grammar = Gramatica_FNC('g5.txt')
 
