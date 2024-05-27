@@ -44,7 +44,7 @@ class Gramatica_FNC:
                 else:
                     self.N[nt].append(esq)
 
-        print('Grammar:', self.grammar)
+        self.print_grammar()
         print('N:', self.N)
         print('Σ:', self.Σ)
 
@@ -104,6 +104,14 @@ class Gramatica_FNC:
             print()
         print()
 
+    def print_grammar(self):
+        """
+        Imprimeix la gramàtica en format ASCII ben formatejada.
+        """
+        for esq, dre in self.grammar.items():
+            print(f"{esq} -> {' | '.join(dre)}")
+        print()
+
     def CKY_prob(self, cadena: str):
         """
         Input: tira de caràcters (string).
@@ -126,7 +134,7 @@ class Gramatica_FNC:
         t_disponibles  = [x for x in 'ωψφχτπξμλκθηζδβzyxwvutsrqponmlkjihgfedcba' if x not in símbols_usats]
 
         substitucions = {}  # Clau: símbols antics, Valor: símbols nous
-
+        self.print_grammar()
         # Pas 1: Regles híbrides
         for regla in list(self.grammar):
             for idx in range(len(self.grammar[regla])):
@@ -140,6 +148,8 @@ class Gramatica_FNC:
                             self.grammar[regla][idx] = self.grammar[regla][idx].replace(símbol, substitucions[símbol])
                             self.grammar[substitucions[símbol]] = [símbol]
 
+        self.print_grammar()
+
         # Pas 2: Regles unitàries
         for regla in list(self.grammar):
             if regla not in self.grammar:
@@ -148,15 +158,26 @@ class Gramatica_FNC:
                 if len(self.grammar[regla][idx]) == 1 and self.grammar[regla][idx].isupper():
                     if len(self.grammar[self.grammar[regla][idx][0]]) == 1 and self.grammar[self.grammar[regla][idx]][0].islower():
                         clau_tmp = self.grammar[regla][idx]
-                        self.grammar[regla] = [self.grammar[self.grammar[regla][idx][0]][0]]
+                        self.grammar[regla][idx] = [self.grammar[self.grammar[regla][idx][0]][0]][0]
                         # Eliminar regla unitària (clau regla)
-                        print(self.grammar, self.grammar[regla][0], regla, idx)
                         del self.grammar[clau_tmp]
-                        print(self.grammar)
                         break
 
-        # Pas 3: Regles de més de 2 símbols no terminals
+        self.print_grammar()
 
+        # Pas 3: Regles de més de 2 símbols no terminals
+        for regla in list(self.grammar):
+            for idx in range(len(self.grammar[regla])):
+                for j in range(len(self.grammar[regla][idx]) - 2):
+                    self.grammar[nt_disponibles.pop()] = [self.grammar[regla][idx][j:j + 2]]
+                    self.grammar[regla][idx] = self.grammar[regla][idx].replace(self.grammar[regla][idx][j:j + 2], nt_disponibles[-1])
+                    """if self.grammar[regla][idx][j:j + 2] not in substitucions:
+                        substitucions[self.grammar[regla][idx][j:j + 2]] = nt_disponibles.pop()
+                        print("Substitució:", self.grammar[regla][idx][j:j+2], substitucions[self.grammar[regla][idx][j:j + 2]])
+                    else:
+                        print("hola, que hi ha algú?", self.grammar[regla][idx][j:j + 2], substitucions[self.grammar[regla][idx][j:j + 2]])
+                    self.grammar[substitucions[self.grammar[regla][idx][j:j + 2]]] = [self.grammar[regla][idx][j:j+2]]
+                    self.grammar[regla][idx] = self.grammar[regla][idx].replace(self.grammar[regla][idx][j:j + 2], substitucions[self.grammar[regla][idx][j:j + 2]])"""
 
 cnf_grammar = Gramatica_FNC('g5.txt')
 
