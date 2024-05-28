@@ -28,7 +28,10 @@ class Gramatica_FNC:
                 self.grammar[line[0]] = line[1:]
 
         assert 'S' in self.grammar, 'La gramàtica no té símbol inicial (ha de ser S)'
+
         self.CFG_a_CNF()
+
+        assert all((len(s) == 1 and s.islower() or len(s) == 2 and s.isupper() for s in x) for x in self.grammar.values()), 'La gramàtica no està en FNC'
 
         for esq, dre in self.grammar.items():
             terminals = [t for t in dre if len(t) == 1]
@@ -119,6 +122,17 @@ class Gramatica_FNC:
         """
         pass
 
+    def treure_epsilon(self):
+        """
+        Elimina les regles de la forma A -> ε.
+        """
+        self.epsilon = False
+        for esq, dre in self.grammar.items():
+            if 'ε' in dre:
+                self.epsilon = True
+                self.grammar[esq].remove('ε')
+
+
     def CFG_a_CNF(self):
         """
         Transforma la gramàtica de CFG a CNF.
@@ -130,11 +144,11 @@ class Gramatica_FNC:
                 for literal in elem:
                     símbols_usats.add(literal)
 
-        nt_disponibles = [x for x in 'ΩΨΦΣΠΞΛΘΔΓZYXWVUTSRQPONMLKJIHGFEDCBA' if x not in símbols_usats]
+        nt_disponibles = [x for x in 'ωψφχτπξμλκθηζδβΩΨΦΣΠΞΛΘΔΓZYXWVUTSRQPONMLKJIHGFEDCBA' if x not in símbols_usats]
         t_disponibles  = [x for x in 'ωψφχτπξμλκθηζδβzyxwvutsrqponmlkjihgfedcba' if x not in símbols_usats]
 
         substitucions = {}  # Clau: símbols antics, Valor: símbols nous
-
+        self.print_grammar()
         # Pas 1: Regles híbrides
         for regla in list(self.grammar):
             for idx in range(len(self.grammar[regla])):
@@ -147,32 +161,47 @@ class Gramatica_FNC:
                                 substitucions[símbol] = nt_disponibles.pop()
                             self.grammar[regla][idx] = self.grammar[regla][idx].replace(símbol, substitucions[símbol])
                             self.grammar[substitucions[símbol]] = [símbol]
-
+        self.print_grammar()
         # Pas 2: Regles unitàries
-        for regla in list(self.grammar):
-            if regla not in self.grammar:
-                continue
-            for idx in range(len(self.grammar[regla])):
-                if self.grammar[regla][idx] in self.grammar and len(self.grammar[regla][idx]) == 1 and self.grammar[regla][idx].isupper():
-                    clau_tmp = self.grammar[regla][idx]
-                    self.grammar[clau_tmp] = [s.replace(clau_tmp, regla) for s in self.grammar[clau_tmp]]
-                    self.grammar[regla].remove(self.grammar[regla][idx])
-                    self.grammar[regla].extend(self.grammar[clau_tmp])
-                    # Eliminar regla unitària (clau regla)
-                    del self.grammar[clau_tmp]
-                    break
+        for _ in range(len(list(self.grammar))**2):
+            for regla in list(self.grammar):
+                if regla not in self.grammar:
+                    continue
+                for idx in range(len(self.grammar[regla])):
+                    if self.grammar[regla][idx] in self.grammar and len(self.grammar[regla][idx]) == 1:
+                        print(regla, self.grammar[regla][idx])
+                        clau_tmp = self.grammar[regla][idx]
+                        self.grammar[clau_tmp] = [s.replace(clau_tmp, regla) for s in self.grammar[clau_tmp]]
+                        self.grammar[regla].remove(self.grammar[regla][idx])
+                        self.grammar[regla].extend(self.grammar[clau_tmp])
+                        # Eliminar regla unitària (clau regla)
+                        del self.grammar[clau_tmp]
+                        break
+                    elif self.grammar[regla][idx] in substitucions:
+                        self.grammar[regla][idx] = substitucions[self.grammar[regla][idx]]
+            if all(len(s) == 1 or len(s) == 2 for s in self.grammar.values()):
+                print("Breaking...")
+                # break
 
+        self.print_grammar()
         # Pas 3: Regles de més de 2 símbols no terminals
-        for regla in list(self.grammar):
-            for idx in range(len(self.grammar[regla])):
-                for j in range(len(self.grammar[regla][idx]) - 2):
-                    if self.grammar[regla][idx][j:j + 2] not in substitucions:
-                        substitucions[self.grammar[regla][idx][j:j + 2]] = nt_disponibles.pop()
-                    self.grammar[substitucions[self.grammar[regla][idx][j:j + 2]]] = [self.grammar[regla][idx][j:j + 2]]
-                    self.grammar[regla][idx] = self.grammar[regla][idx].replace(self.grammar[regla][idx][j:j + 2], substitucions[self.grammar[regla][idx][j:j + 2]], 1)
+        for _ in range(len(list(self.grammar))**2):
+            for regla in list(self.grammar):
+                for idx in range(len(self.grammar[regla])):
+                    for j in range(len(self.grammar[regla][idx]) - 2):
+                        if not self.grammar[regla][idx][j:j + 2].isupper():
+                            continue
+                        if self.grammar[regla][idx][j:j + 2] not in substitucions:
+                            substitucions[self.grammar[regla][idx][j:j + 2]] = nt_disponibles.pop()
+
+                        self.grammar[substitucions[self.grammar[regla][idx][j:j + 2]]] = [self.grammar[regla][idx][j:j + 2]]
+                        self.grammar[regla][idx] = self.grammar[regla][idx].replace(self.grammar[regla][idx][j:j + 2], substitucions[self.grammar[regla][idx][j:j + 2]], 1)
+            if all(len(s) <= 2 for s in self.grammar.values()):
+                print("Breaking...")
+                # break
 
 
-cnf_grammar = Gramatica_FNC('g5.txt')
+cnf_grammar = Gramatica_FNC('g3.txt')
 
 proves_g1 = ['a', 'aa', 'aaa', 'aaaa', 'aaaaa', 'aaaaaaa', 'b', 'bb', 'bbb', 'bbbb',
              'bbbbb', 'ab', 'aab', 'aaab', 'aaaab', 'aaaaaab', 'abab', 'aba', 'abaa',
