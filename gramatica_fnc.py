@@ -344,8 +344,10 @@ class Gramatica_FNC():
                     new_prob = 1 / len(rhs_list)  # Si no hi ha probabilitat definida, distribuïm igualment
                 new_prob_list.append(new_prob)
             new_probabilities[lhs] = new_prob_list
+
         # Assignem les noves probabilitats al diccionari de probabilitats
         self.probabilities = new_probabilities
+        
         # Ajustaments finals al diccionaris N i Σ
         self.N = {}
         self.Σ = {}
