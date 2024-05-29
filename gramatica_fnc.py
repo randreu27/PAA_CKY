@@ -334,17 +334,17 @@ class Gramatica_FNC():
             if lhs in self.probabilities:
                 probabilities = self.probabilities[lhs]
             else:
-                probabilities = [1] * len(rhs_list)  # Si no hay probabilidad definida, asignamos 1 a todas las producciones
+                probabilities = [1] * len(rhs_list)  # Si no hi han probabilitats definides asignem 1 a les produccions
             new_prob_list = []
             for idx, rhs in enumerate(rhs_list):
-                # Calculamos la probabilidad para la nueva producción, si hay una existente
+                # Calculem la probabilitat per a la nova producció, si n'hi ha una existent
                 if lhs in self.probabilities and idx < len(self.probabilities[lhs]):
                     new_prob = self.probabilities[lhs][idx] / len(rhs_list)
                 else:
-                    new_prob = 1 / len(rhs_list)  # Si no hay probabilidad definida, distribuimos igualmente
+                    new_prob = 1 / len(rhs_list)  # Si no hi ha probabilitat definida, distribuïm igualment
                 new_prob_list.append(new_prob)
             new_probabilities[lhs] = new_prob_list
-        # Asignamos las nuevas probabilidades al diccionario de probabilidades
+        # Assignem les noves probabilitats al diccionari de probabilitats
         self.probabilities = new_probabilities
         # Ajustaments finals al diccionaris N i Σ
         self.N = {}
