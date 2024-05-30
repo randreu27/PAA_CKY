@@ -30,12 +30,12 @@ class Gramatica_FNC():
     Paràmetre: to_fnc  (boolean)   : Obligatori possar True si la gramatica no esta en FNC. \n
     Exemple del contingut:
 
-    S -> aSa|bSb|a|b
+    S -> aSa | bSb | a | b
 
 --------------------------------------------------------------------------------
 
     Paràmetre: pcky    (boolean)   : Si la gramàtica és probabilista, és obligatori possar True. \n
-    Cal aclarir que l'algorisme de la Classe permet usar el CKY No Probabilista i la CKY Probabilista per aquest tipus de gramàtiques.\n
+    Cal aclarir que l'algorisme de la classe permet usar el CKY No Probabilista i la CKY Probabilista per aquest tipus de gramàtiques.\n
     Exemple del contingut:
 
     S -> a | XA | AX | b    [0.1 0.4 0.4 0.1] \n
