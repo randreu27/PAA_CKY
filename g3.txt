@@ -1,2 +1,2 @@
-S -> aaSb|A
+S -> aaSb | A
 A -> aAb

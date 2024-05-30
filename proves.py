@@ -122,7 +122,6 @@ def proves_internes():
 
         predicted_g4 = []
         for elem in proves_g4:
-            print(cnf_grammar.CKY_prob(elem))
             if cnf_grammar.CKY_prob(elem) > 0:
                 predicted_g4.append(True)
             else:
@@ -133,7 +132,5 @@ def proves_internes():
         else:
             print("La gramàtica NO s'ha identificat corectament")
 
-        print(predicted_g4)
-        print(cnf_grammar.probabilities)
 
 proves_internes()
