@@ -59,6 +59,7 @@ class Gramatica_FNC():
 
             assert 'S' in self.grammar, 'La gramàtica no té símbol inicial (ha de ser S)'
 
+            # Conversió a CNF si és necessari
             if to_fnc == True:
                 self.CFG_a_CNF()
 
@@ -83,6 +84,7 @@ class Gramatica_FNC():
             print('Σ:', self.Σ)
 
         elif pcky == True:
+            # Gestiona les probabilitats de la gramàtica
             with open(file) as f:
                 for line in f:
                     line = line.strip().split('->')
@@ -93,6 +95,7 @@ class Gramatica_FNC():
                     self.grammar[lhs] = rhs
                     self.probabilities[lhs] = probs
 
+            # Conversió a CNF si és necessari
             if to_fnc:
                 self.CFG_a_CNF_prob()
 
