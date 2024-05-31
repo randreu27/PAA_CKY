@@ -4,20 +4,47 @@ from collections import defaultdict
 
 
 class Gramatica_FNC():
-    """
+    def __init__(self, file, to_fnc = False, pcky = False):
+        """
     Processa els textos en format igual a l'exemple "g1.txt" o "g2.txt".
 
-    Regles de format:
-        Terminals en minúscules.
-        No terminals en majúscules.
-        Els símbols han de tenir mida 1. Si en volguéssim tenir més per representar frases com a PLH,
-        hauríem de separar els símbols d'alguna manera, que en general no hem fet a PAA. Per tant, hem decidit
-        mantenir el format de classe (ex: S -> aSb).
+    Regles de format:\n
+        · Terminals en minúscules.\n
+        · No terminals en majúscules.\n
+        · Els símbols han de tenir mida 1.\n
+        · Si en volguéssim tenir més per representar frases com a PLH, hauríem de separar els símbols d'alguna manera, que en general no hem fet a PAA. \n
+        · Per tant, hem decidit mantenir el format de classe (ex: S -> aSb).
+
+--------------------------------------------------------------------------------
+    Paràmetre: file    (string)    : Nom del arxiu amb la gramàtica, és obligatori. \n
+    Exemple del contingut:
+
+    S -> a | XA | AX | b \n
+    A -> RB \n
+    B -> AX | b | a \n
+    X -> a \n
+    R -> XB \n
+
+--------------------------------------------------------------------------------
+
+    Paràmetre: to_fnc  (boolean)   : Obligatori possar True si la gramatica no esta en FNC. \n
+    Exemple del contingut:
+
+    S -> aSa | bSb | a | b
+
+--------------------------------------------------------------------------------
+
+    Paràmetre: pcky    (boolean)   : Si la gramàtica és probabilista, és obligatori possar True. \n
+    Cal aclarir que l'algorisme de la classe permet usar el CKY No Probabilista i la CKY Probabilista per aquest tipus de gramàtiques.\n
+    Exemple del contingut:
+
+    S -> a | XA | AX | b    [0.1 0.4 0.4 0.1] \n
+    A -> RB                 [1] \n
+    B -> AX | b | a         [0.5 0.25 0.25] \n
+    X -> a                  [1] \n
+    R -> XB                 [1]
     """
-    def __init__(self, file = None, to_fnc = False, pcky = False, proves = True):
-        """
-        Input: file (string) amb el nom del fitxer que conté la gramàtica.
-        """
+        
         self.grammar = {}           # Gramàtica (diccionari de llistes)
         self.probabilities = {}     # Probabilitats de les regles
         self.N = {}                 # No terminals (claus: 2 símbols no terminals, vals: regles que les referencien)
@@ -32,6 +59,7 @@ class Gramatica_FNC():
 
             assert 'S' in self.grammar, 'La gramàtica no té símbol inicial (ha de ser S)'
 
+            # Conversió a CNF si és necessari
             if to_fnc == True:
                 self.CFG_a_CNF()
 
@@ -56,6 +84,7 @@ class Gramatica_FNC():
             print('Σ:', self.Σ)
 
         elif pcky == True:
+            # Gestiona les probabilitats de la gramàtica
             with open(file) as f:
                 for line in f:
                     line = line.strip().split('->')
@@ -66,6 +95,7 @@ class Gramatica_FNC():
                     self.grammar[lhs] = rhs
                     self.probabilities[lhs] = probs
 
+            # Conversió a CNF si és necessari
             if to_fnc:
                 self.CFG_a_CNF_prob()
 
