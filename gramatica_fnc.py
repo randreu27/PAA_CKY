@@ -35,7 +35,7 @@ class Gramatica_FNC():
 --------------------------------------------------------------------------------
 
     Paràmetre: pcky    (boolean)   : Si la gramàtica és probabilista, és obligatori possar True. \n
-    Cal aclarir que l'algorisme de la classe permet usar el CKY No Probabilista i la CKY Probabilista per aquest tipus de gramàtiques.\n
+    Cal aclarir que l'algorisme de la classe permet usar el CKY No Probabilísta i la CKY Probabilísta per aquest tipus de gramàtiques.\n
     Exemple del contingut:
 
     S -> a | XA | AX | b    [0.1 0.4 0.4 0.1] \n
