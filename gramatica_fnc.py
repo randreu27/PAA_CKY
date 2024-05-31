@@ -262,12 +262,15 @@ class Gramatica_FNC():
                     continue
                 for idx in range(len(self.grammar[regla])):
                     if self.grammar[regla][idx] in self.grammar and len(self.grammar[regla][idx]) == 1:
-                        clau_tmp = self.grammar[regla][idx]
-                        self.grammar[regla].extend(self.grammar[clau_tmp])
-                        self.grammar[regla].remove(clau_tmp)
+                        clau_unitària = self.grammar[regla][idx]
+                        if clau_unitària not in substitucions:
+                            substitucions[regla] = clau_unitària
+                        self.grammar[regla].extend(self.grammar[clau_unitària])
+                        self.grammar[regla].remove(clau_unitària)
                         # Eliminar regla unitària (clau regla)
-                        del self.grammar[clau_tmp]
-                        break
+                        del self.grammar[clau_unitària]
+                    elif regla in substitucions and substitucions[regla] in self.grammar[regla][idx]:
+                        self.grammar[regla][idx] = self.grammar[regla][idx].replace(substitucions[regla], regla)
         self.print_grammar()
 
         # Pas 3: Regles de més de 2 símbols no terminals
@@ -338,12 +341,15 @@ class Gramatica_FNC():
                     continue
                 for idx in range(len(self.grammar[regla])):
                     if self.grammar[regla][idx] in self.grammar and len(self.grammar[regla][idx]) == 1:
-                        clau_tmp = self.grammar[regla][idx]
-                        self.grammar[regla].extend(self.grammar[clau_tmp])
-                        self.grammar[regla].remove(clau_tmp)
+                        clau_unitària = self.grammar[regla][idx]
+                        if clau_unitària not in substitucions:
+                            substitucions[regla] = clau_unitària
+                        self.grammar[regla].extend(self.grammar[clau_unitària])
+                        self.grammar[regla].remove(clau_unitària)
                         # Eliminar regla unitària (clau regla)
-                        del self.grammar[clau_tmp]
-                        break
+                        del self.grammar[clau_unitària]
+                    elif regla in substitucions and substitucions[regla] in self.grammar[regla][idx]:
+                        self.grammar[regla][idx] = self.grammar[regla][idx].replace(substitucions[regla], regla)
         self.print_grammar()
         # Pas 3: Regles de més de 2 símbols no terminals
         for _ in range(len(list(self.grammar))**2):
