@@ -1,4 +1,4 @@
-S -> aaSb|A
+S -> aaSb | A
 A -> aAb | APA
 P -> N | bA
 N -> d
