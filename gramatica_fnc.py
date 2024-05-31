@@ -184,7 +184,7 @@ class Gramatica_FNC():
                                 taula[-length][i][rule] += self.probabilities[rule][idx] * prob_B * prob_C
 
         return taula[-n][0].get('S', 0.0)
-    
+
     def treure_epsilon(self):
         """
         Elimina les regles de la forma A -> ε.
@@ -194,7 +194,6 @@ class Gramatica_FNC():
             if 'ε' in dre:
                 self.epsilon = True
                 self.grammar[esq].remove('ε')
-
 
     def CFG_a_CNF(self):
         """
@@ -208,7 +207,6 @@ class Gramatica_FNC():
                     símbols_usats.add(literal)
 
         nt_disponibles = [x for x in 'ωψφχτπξμλκθηζδβΩΨΦΣΠΞΛΘΔΓZYXWVUTSRQPONMLKJIHGFEDCBA' if x not in símbols_usats]
-        t_disponibles  = [x for x in 'ωψφχτπξμλκθηζδβzyxwvutsrqponmlkjihgfedcba' if x not in símbols_usats]
 
         substitucions = {}  # Clau: símbols antics, Valor: símbols nous
         self.print_grammar()
@@ -216,7 +214,7 @@ class Gramatica_FNC():
         # Pas 1: Regles híbrides
         for regla in list(self.grammar):
             for idx in range(len(self.grammar[regla])):
-                # Si la regla té més de 2 símbols i algun és terminal
+                # Si la regla té 2 o més símbols i algun és terminal
                 if len(self.grammar[regla][idx]) >= 2 and any(map(str.islower, self.grammar[regla][idx])):
                     for símbol in self.grammar[regla][idx]:
                         if símbol.islower():
@@ -287,7 +285,7 @@ class Gramatica_FNC():
                 for literal in elem:
                     símbols_usats.add(literal)
         nt_disponibles = [x for x in 'ωψφχτπξμλκθηζδβΩΨΦΣΠΞΛΘΔΓZYXWVUTSRQPONMLKJIHGFEDCBA' if x not in símbols_usats]
-        t_disponibles  = [x for x in 'ωψφχτπξμλκθηζδβzyxwvutsrqponmlkjihgfedcba' if x not in símbols_usats]
+
         substitucions = {}  # Clau: símbols antics, Valor: símbols nous
         self.print_grammar()
         # Pas 1: Regles híbrides
@@ -347,7 +345,7 @@ class Gramatica_FNC():
 
         # Assignem les noves probabilitats al diccionari de probabilitats
         self.probabilities = new_probabilities
-        
+
         # Ajustaments finals al diccionaris N i Σ
         self.N = {}
         self.Σ = {}
