@@ -1,4 +1,4 @@
-S -> aaSb|A | L | ε | NAPAL
+S -> aaSb | A | L | ε | NAPAL
 A -> aAb | APA
 P -> N | bA
 N -> d
